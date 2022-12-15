@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 import javax.sound.sampled.*;
@@ -16,7 +17,6 @@ import javax.sound.sampled.*;
 public class Game extends JPanel implements KeyListener {
 
     private static Personaggio personaggio;
-    private static Ostacoli ostacolo;
     private static int width = 400;
     private static int heigth = 400;
     private String soundName = "audio/dig.wav";
@@ -28,11 +28,12 @@ public class Game extends JPanel implements KeyListener {
     static Traguardo traguardo = new Traguardo(100, 100);
     long startTime = System.currentTimeMillis();
 
-    
+    static ArrayList<Integer> posizioni = new ArrayList<>();
+    static ArrayList<Ostacoli> nuovoArray = new ArrayList<>();
+    static int z = 0;
 
     public Game() {
         personaggio = new Personaggio(10, 10, 10);
-        ostacolo = new Ostacoli(20, 20);
 
     }
 
@@ -47,12 +48,22 @@ public class Game extends JPanel implements KeyListener {
     //}
     // Questo è il metodo main(), il punto di ingresso della tua applicazione
     public static void main(String[] args) {
+        int[][] array = creaSchema();
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[i].length; j++) {
+                if (array[i][j] == 1) {
+                    nuovoArray.add(new Ostacoli(posizioni.get(z), posizioni.get(z + 1)));
+                    z = z + 2;
+                }
+            }
+        }
 
         JFrame frame = new JFrame();
         Game game = new Game();
-
+        for (int i = 0; i < nuovoArray.size(); i++) {
+            frame.add(nuovoArray.get(i));
+        }
         frame.add(personaggio);
-        frame.add(ostacolo);
         frame.add(muroSopra);
         frame.add(muroSotto);
         frame.add(muroDestro);
@@ -76,20 +87,53 @@ public class Game extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
         if (keyCode == KeyEvent.VK_UP) {
-            if (!ostacolo.checkCollisionTop(personaggio)) {
+           
+            boolean move = true;
+            for (int i = 0; i < nuovoArray.size(); i++) {
+                if (nuovoArray.get(i).checkCollisionTop(personaggio)) {
+                    move = false;
+                    break;
+                }
+
+            }
+            if (move == true) {
                 personaggio.moveUp();
             }
 
         } else if (keyCode == KeyEvent.VK_DOWN) {
-            if ((!ostacolo.checkCollisionBottom(personaggio))) {
+            boolean move = true;
+            for (int i = 0; i < nuovoArray.size(); i++) {
+                if (nuovoArray.get(i).checkCollisionBottom(personaggio)) {
+                    move = false;
+                    break;
+                }
+
+            }
+            if (move == true) {
                 personaggio.moveDown();
             }
         } else if (keyCode == KeyEvent.VK_LEFT) {
-            if (!ostacolo.checkCollisionLeft(personaggio)) {
+            boolean move = true;
+            for (int i = 0; i < nuovoArray.size(); i++) {
+                if (nuovoArray.get(i).checkCollisionLeft(personaggio)) {
+                    move = false;
+                    break;
+                }
+
+            }
+            if (move == true) {
                 personaggio.moveLeft();
             }
         } else if (keyCode == KeyEvent.VK_RIGHT) {
-            if (!ostacolo.checkCollisionRight(personaggio)) {
+            boolean move = true;
+            for (int i = 0; i < nuovoArray.size(); i++) {
+                if (nuovoArray.get(i).checkCollisionRight(personaggio)) {
+                    move = false;
+                    break;
+                }
+
+            }
+            if (move == true) {
                 personaggio.moveRight();
             }
         } else if (keyCode == KeyEvent.VK_C) {
@@ -110,6 +154,10 @@ public class Game extends JPanel implements KeyListener {
                 personaggio.setY(10);
             } else if (scelta == JOptionPane.NO_OPTION) {
                 System.exit(0);
+            } else if (scelta == JOptionPane.CLOSED_OPTION) {
+                startTime = System.currentTimeMillis();
+                personaggio.setX(10);
+                personaggio.setY(10);
             }
 
         }
@@ -122,12 +170,15 @@ public class Game extends JPanel implements KeyListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         personaggio.drawCharachter(g);
-        ostacolo.draw(g);
+
         muroDestro.draw(g);
         muroSinistro.draw(g);
         muroSotto.draw(g);
         muroSopra.draw(g);
         traguardo.draw(g);
+        for (int i = 0; i < nuovoArray.size(); i++) {
+            nuovoArray.get(i).draw(g);
+        }
 
     }
 
@@ -145,16 +196,16 @@ public class Game extends JPanel implements KeyListener {
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
                 Control[] controls = clip.getControls();
-                
+
                 for (Control control : controls) {
                     if (control.getType() == FloatControl.Type.VOLUME) {
                         FloatControl volumeControl = (FloatControl) control;
                         volumeControl.setValue(0.1f);
                         break;
                     }
-                    
-                        clip.start();
-                    
+
+                    clip.start();
+
                 }
 
             } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
@@ -162,6 +213,32 @@ public class Game extends JPanel implements KeyListener {
             }
 
         }
+    }
+
+    static public int[][] creaSchema() {
+        int[][] array = new int[37][35];
+
+        double randomNumber = 0;
+
+        for (int i = 0; i < array.length; i++) {
+            // Itero sugli elementi dell'array interno
+            for (int j = 0; j < array[i].length; j++) {
+                randomNumber = Math.random() * 2 - 1;
+// Arrotondo il numero casuale a un intero
+                int randomInt = (int) Math.round(randomNumber);
+                randomInt = Math.abs(randomInt);
+                if(i==0 && j==0){
+                randomInt=0;
+                }
+                array[i][j] = randomInt;
+                if (randomInt == 1) {
+                    posizioni.add(((i+1) * 10));
+                    posizioni.add(((j+1) * 10));
+                }
+            }
+        }
+        
+        return array;
     }
 
 }
