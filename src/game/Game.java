@@ -25,12 +25,23 @@ public class Game extends JPanel implements KeyListener {
     static Ostacoli muroSotto = new Ostacoli(0, 353, 400, 10);
     static Ostacoli muroDestro = new Ostacoli(376, 0, 10, 400);
     static Ostacoli muroSinistro = new Ostacoli(0, 0, 10, 400);
-    static Traguardo traguardo = new Traguardo(100, 100);
+    
+    static Random randomico1 = new Random();
+    static Random randomico2 = new Random();
+    
+    static int xTra=((randomico1.nextInt(37))+1)*10;
+    static int yTra=((randomico2.nextInt(35))+1)*10;
+    
+   
+    
+    static Traguardo traguardo = new Traguardo(xTra,yTra);
     long startTime = System.currentTimeMillis();
 
     static ArrayList<Integer> posizioni = new ArrayList<>();
     static ArrayList<Ostacoli> nuovoArray = new ArrayList<>();
     static int z = 0;
+    
+  
 
     public Game() {
         personaggio = new Personaggio(10, 10, 10);
@@ -48,6 +59,26 @@ public class Game extends JPanel implements KeyListener {
     //}
     // Questo è il metodo main(), il punto di ingresso della tua applicazione
     public static void main(String[] args) {
+        boolean controlla=false;
+          while(xTra==10 && yTra==10){
+           xTra=((randomico1.nextInt(38))+1)*10;
+           yTra=((randomico2.nextInt(36))+1)*10;
+           controlla=true;
+       }
+       if(xTra>360){
+       xTra=366;
+       controlla=true;
+       }
+       
+       if(yTra>340){
+       yTra=343;
+       controlla=true;
+       }
+       
+       if(controlla){
+       traguardo.setX(xTra);
+       traguardo.setY(yTra);
+       }
         int[][] array = creaSchema();
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
@@ -57,7 +88,7 @@ public class Game extends JPanel implements KeyListener {
                 }
             }
         }
-
+     
         JFrame frame = new JFrame();
         Game game = new Game();
         for (int i = 0; i < nuovoArray.size(); i++) {
@@ -152,6 +183,7 @@ public class Game extends JPanel implements KeyListener {
                 startTime = System.currentTimeMillis();
                 personaggio.setX(10);
                 personaggio.setY(10);
+                repaint();
             } else if (scelta == JOptionPane.NO_OPTION) {
                 System.exit(0);
             } else if (scelta == JOptionPane.CLOSED_OPTION) {
@@ -177,7 +209,7 @@ public class Game extends JPanel implements KeyListener {
         muroSopra.draw(g);
         traguardo.draw(g);
         for (int i = 0; i < nuovoArray.size(); i++) {
-            nuovoArray.get(i).draw(g);
+           nuovoArray.get(i).draw(g);
         }
 
     }
@@ -227,13 +259,22 @@ public class Game extends JPanel implements KeyListener {
 // Arrotondo il numero casuale a un intero
                 int randomInt = (int) Math.round(randomNumber);
                 randomInt = Math.abs(randomInt);
-                if(i==0 && j==0){
+                int controllo1=((i+1) * 10);
+                int controllo2=((j+1) * 10);
+                
+                if(controllo1>360){
+                controllo1=366;
+                }
+                if(controllo2>340){
+                   controllo2=343;
+                }
+                if((i==0 && j==0) || (controllo1==traguardo.getX()&& controllo2==traguardo.getY())){
                 randomInt=0;
                 }
                 array[i][j] = randomInt;
                 if (randomInt == 1) {
-                    posizioni.add(((i+1) * 10));
-                    posizioni.add(((j+1) * 10));
+                    posizioni.add(controllo1);
+                    posizioni.add(controllo2);
                 }
             }
         }
