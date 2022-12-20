@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import javax.swing.*;
 import javax.sound.sampled.*;
@@ -25,23 +26,22 @@ public class Game extends JPanel implements KeyListener {
     static Ostacoli muroSotto = new Ostacoli(0, 353, 400, 10);
     static Ostacoli muroDestro = new Ostacoli(376, 0, 10, 400);
     static Ostacoli muroSinistro = new Ostacoli(0, 0, 10, 400);
-    
+
     static Random randomico1 = new Random();
     static Random randomico2 = new Random();
-    
-    static int xTra=((randomico1.nextInt(37))+1)*10;
-    static int yTra=((randomico2.nextInt(35))+1)*10;
-    
-   
-    
-    static Traguardo traguardo = new Traguardo(xTra,yTra);
+
+    static int xTra = ((randomico1.nextInt(37)) + 1) * 10;
+    static int yTra = ((randomico2.nextInt(35)) + 1) * 10;
+
+    static Traguardo traguardo = new Traguardo(xTra, yTra);
     long startTime = System.currentTimeMillis();
 
     static ArrayList<Integer> posizioni = new ArrayList<>();
     static ArrayList<Ostacoli> nuovoArray = new ArrayList<>();
     static int z = 0;
-    
-  
+
+    static int contax = 0;
+    static int contay = 0;
 
     public Game() {
         personaggio = new Personaggio(10, 10, 10);
@@ -59,26 +59,26 @@ public class Game extends JPanel implements KeyListener {
     //}
     // Questo è il metodo main(), il punto di ingresso della tua applicazione
     public static void main(String[] args) {
-        boolean controlla=false;
-          while(xTra==10 && yTra==10){
-           xTra=((randomico1.nextInt(38))+1)*10;
-           yTra=((randomico2.nextInt(36))+1)*10;
-           controlla=true;
-       }
-       if(xTra>360){
-       xTra=366;
-       controlla=true;
-       }
-       
-       if(yTra>340){
-       yTra=343;
-       controlla=true;
-       }
-       
-       if(controlla){
-       traguardo.setX(xTra);
-       traguardo.setY(yTra);
-       }
+        boolean controlla = false;
+        while (xTra == 10 && yTra == 10) {
+            xTra = ((randomico1.nextInt(38)) + 1) * 10;
+            yTra = ((randomico2.nextInt(36)) + 1) * 10;
+            controlla = true;
+        }
+        if (xTra > 360) {
+            xTra = 366;
+            controlla = true;
+        }
+
+        if (yTra > 340) {
+            yTra = 343;
+            controlla = true;
+        }
+
+        if (controlla) {
+            traguardo.setX(xTra);
+            traguardo.setY(yTra);
+        }
         int[][] array = creaSchema();
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
@@ -88,7 +88,7 @@ public class Game extends JPanel implements KeyListener {
                 }
             }
         }
-     
+
         JFrame frame = new JFrame();
         Game game = new Game();
         for (int i = 0; i < nuovoArray.size(); i++) {
@@ -118,7 +118,7 @@ public class Game extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e) {
         int keyCode = e.getKeyCode();
         if (keyCode == KeyEvent.VK_UP) {
-           
+
             boolean move = true;
             for (int i = 0; i < nuovoArray.size(); i++) {
                 if (nuovoArray.get(i).checkCollisionTop(personaggio)) {
@@ -209,7 +209,7 @@ public class Game extends JPanel implements KeyListener {
         muroSopra.draw(g);
         traguardo.draw(g);
         for (int i = 0; i < nuovoArray.size(); i++) {
-           nuovoArray.get(i).draw(g);
+            nuovoArray.get(i).draw(g);
         }
 
     }
@@ -249,8 +249,39 @@ public class Game extends JPanel implements KeyListener {
 
     static public int[][] creaSchema() {
         int[][] array = new int[37][35];
-
         double randomNumber = 0;
+        int[][] l = percorso();
+        int[][] posPercorso = new int[60][2];
+        int posx = 10;
+        int posy = 10;
+        int count = 0;
+for (int i = 0; i < l.length; i++) {
+    System.out.println("Elemento " + i + ": (" + l[i][0] + ", " + l[i][1] + ")");
+}
+        System.out.println("/n");
+        for (int i = 0; i < l.length; i++) {
+            if (l[i][1] == 1) {
+                for (int j = 0; j < l[i][0]; j++) {
+                    posPercorso[count][0] = posx;
+                    posPercorso[count + 1][1] = posy;
+                    count ++;
+                    posx += 10;
+                }
+            } else {
+                for (int j = 0; j < l[i][0]; j++) {
+                    posPercorso[count][0] = posx;
+                    posPercorso[count][1] = posy;
+                    count++;
+                    posy += 10;
+                }
+            }
+        }
+        
+        
+        for (int i = 0; i < posPercorso.length; i++) {
+    System.out.println("Elemento " + i + ": (" + posPercorso[i][0] + ", " + posPercorso[i][1] + ")");
+}
+
 
         for (int i = 0; i < array.length; i++) {
             // Itero sugli elementi dell'array interno
@@ -259,17 +290,23 @@ public class Game extends JPanel implements KeyListener {
 // Arrotondo il numero casuale a un intero
                 int randomInt = (int) Math.round(randomNumber);
                 randomInt = Math.abs(randomInt);
-                int controllo1=((i+1) * 10);
-                int controllo2=((j+1) * 10);
-                
-                if(controllo1>360){
-                controllo1=366;
+                int controllo1 = ((i + 1) * 10);
+                int controllo2 = ((j + 1) * 10);
+
+                if (controllo1 > 360) {
+                    controllo1 = 366;
                 }
-                if(controllo2>340){
-                   controllo2=343;
+                if (controllo2 > 340) {
+                    controllo2 = 343;
                 }
-                if((i==0 && j==0) || (controllo1==traguardo.getX()&& controllo2==traguardo.getY())){
+                if ((i == 0 && j == 0) || (controllo1 == traguardo.getX() && controllo2 == traguardo.getY())) {
+                    randomInt = 0;
+                }
+                for(int k=0;k<posPercorso.length;k++){
+                if(posPercorso[k][0]==controllo1 && posPercorso[k][1]==controllo2){
                 randomInt=0;
+                }
+                
                 }
                 array[i][j] = randomInt;
                 if (randomInt == 1) {
@@ -278,8 +315,91 @@ public class Game extends JPanel implements KeyListener {
                 }
             }
         }
-        
+        //problema array posizioni
+        for (int k = 0; k < l.length; k++) {
+            if (l[k][1] == 1) {
+                for (int ab = 0; ab < l[k][0]; ab++) {
+
+                }
+
+            } else {
+                for (int ab = 0; ab < l[k][0]; ab++) {
+
+                    posy = posy + 1;
+
+                }
+            }
+
+        }
         return array;
+    }
+
+    static public int[][] percorso() {
+        ArrayList<Integer> a = new ArrayList<>();
+        int x = traguardo.getX();
+        int y = traguardo.getY();
+
+        Random randomico1 = new Random();
+        Random randomico2 = new Random();
+
+        int disx = ((int) x / 10) - 1;
+        int disy = ((int) y / 10) - 1;
+
+        System.out.println("Valore di x:" + disx + " valore di y:" + disy);
+        while (disx > 0) {
+            int rando = (randomico1.nextInt(disx) + 1);
+            disx = disx - rando;
+            a.add(rando);
+            contax++;
+        }
+        while (disy > 0) {
+            int rando = (randomico2.nextInt(disy) + 1);
+            disy = disy - rando;
+            a.add(rando);
+            contay++;
+        }
+
+       
+
+        int acaso[][] = new int[a.size()][2];
+
+        for (int i = 0; i < a.size(); i++) {
+            acaso[i][0] = a.get(i);
+
+        }
+
+        for (int i = 0; i < a.size(); i++) {
+            if (contax > i) {
+                acaso[i][1] = 1;
+            } else {
+                acaso[i][1] = 0;
+            }
+
+        }
+
+        Collections.shuffle(a);
+        //non funziona
+        int[] finale = new int[a.size()];
+        for (int i = 0; i < a.size(); i++) {
+            for (int k = 0; k < a.size(); k++) {
+                if (a.get(i).equals(acaso[k][0])) {
+
+                    finale[i] = acaso[k][1];
+                }
+            }
+        }
+
+        for (int i = 0; i < a.size(); i++) {
+            acaso[i][0] = a.get(i);
+
+        }
+        for (int i = 0; i < a.size(); i++) {
+            acaso[i][1] = finale[i];
+
+        }
+
+       
+        return acaso;
     }
 
 }
