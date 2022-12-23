@@ -21,6 +21,40 @@ public class Game extends JPanel implements KeyListener {
     private static Personaggio personaggio;
     private static int width = 400;
     private static int heigth = 400;
+
+    private static void creaLabrinto() {
+         int[][] array = creaSchema();
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[i].length; j++) {
+                if (array[i][j] == 1) {
+                    nuovoArray.add(new Ostacoli(posizioni.get(z), posizioni.get(z + 1)));
+                    z = z + 2;
+                }
+            }
+        } 
+    }
+
+    private static void creaTraguardo() {
+       boolean controlla = false;
+        while (xTra == 10 && yTra == 10) {
+            xTra = ((randomico1.nextInt(38)) + 1) * 10;
+            yTra = ((randomico2.nextInt(36)) + 1) * 10;
+            controlla = true;
+        }
+        if (xTra > 360) {
+            xTra = 360;
+            controlla = true;
+        }
+
+        if (yTra > 340) {
+            yTra = 340;
+            controlla = true;
+        }
+
+        if (controlla) {
+            traguardo=new Traguardo(xTra,yTra);
+        }
+    }
     private String soundName = "audio/dig.wav";
 
     static Ostacoli muroSopra = new Ostacoli(0, 0, 400, 10);
@@ -41,8 +75,7 @@ public class Game extends JPanel implements KeyListener {
     static ArrayList<Ostacoli> nuovoArray = new ArrayList<>();
     static int z = 0;
 
-    static int contax = 0;
-    static int contay = 0;
+    
 
     public Game() {
         personaggio = new Personaggio(10, 10, 10);
@@ -60,35 +93,11 @@ public class Game extends JPanel implements KeyListener {
     //}
     // Questo è il metodo main(), il punto di ingresso della tua applicazione
     public static void main(String[] args) {
-        boolean controlla = false;
-        while (xTra == 10 && yTra == 10) {
-            xTra = ((randomico1.nextInt(38)) + 1) * 10;
-            yTra = ((randomico2.nextInt(36)) + 1) * 10;
-            controlla = true;
-        }
-        if (xTra > 360) {
-            xTra = 360;
-            controlla = true;
-        }
-
-        if (yTra > 340) {
-            yTra = 340;
-            controlla = true;
-        }
-
-        if (controlla) {
-            traguardo.setX(xTra);
-            traguardo.setY(yTra);
-        }
-        int[][] array = creaSchema();
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                if (array[i][j] == 1) {
-                    nuovoArray.add(new Ostacoli(posizioni.get(z), posizioni.get(z + 1)));
-                    z = z + 2;
-                }
-            }
-        }
+           creaTraguardo();
+          creaLabrinto();
+         
+        
+     
 
         JFrame frame = new JFrame();
         Game game = new Game();
@@ -184,6 +193,11 @@ public class Game extends JPanel implements KeyListener {
                 startTime = System.currentTimeMillis();
                 personaggio.setX(10);
                 personaggio.setY(10);
+                 
+                nuovoArray.clear();
+               
+                creaLabrinto();
+                creaTraguardo();
                
             } else if (scelta == JOptionPane.NO_OPTION) {
                 System.exit(0);
@@ -191,6 +205,9 @@ public class Game extends JPanel implements KeyListener {
                 startTime = System.currentTimeMillis();
                 personaggio.setX(10);
                 personaggio.setY(10);
+                   nuovoArray.clear();
+                      creaTraguardo();
+                creaLabrinto();
             }
 
         }
@@ -392,6 +409,6 @@ for (int i = 0; i < l.length; i++) {
 
     return shuffled;
 }
-
-
+  
+  
 }
