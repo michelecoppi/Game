@@ -13,8 +13,8 @@ public class Personaggio extends Component{
     private int x;
     private int y;
     private int speed;
-    private int width=376;
-    private int heigth=353;
+    private int width=370;
+    private int heigth=350;
     private int bordo=10;
     public int size;
     private Color color;

@@ -6,6 +6,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import javax.swing.*;
@@ -23,8 +24,8 @@ public class Game extends JPanel implements KeyListener {
     private String soundName = "audio/dig.wav";
 
     static Ostacoli muroSopra = new Ostacoli(0, 0, 400, 10);
-    static Ostacoli muroSotto = new Ostacoli(0, 353, 400, 10);
-    static Ostacoli muroDestro = new Ostacoli(376, 0, 10, 400);
+    static Ostacoli muroSotto = new Ostacoli(0, 350, 400, 15);
+    static Ostacoli muroDestro = new Ostacoli(370, 0, 16, 400);
     static Ostacoli muroSinistro = new Ostacoli(0, 0, 10, 400);
 
     static Random randomico1 = new Random();
@@ -66,12 +67,12 @@ public class Game extends JPanel implements KeyListener {
             controlla = true;
         }
         if (xTra > 360) {
-            xTra = 366;
+            xTra = 360;
             controlla = true;
         }
 
         if (yTra > 340) {
-            yTra = 343;
+            yTra = 340;
             controlla = true;
         }
 
@@ -183,7 +184,7 @@ public class Game extends JPanel implements KeyListener {
                 startTime = System.currentTimeMillis();
                 personaggio.setX(10);
                 personaggio.setY(10);
-                repaint();
+               
             } else if (scelta == JOptionPane.NO_OPTION) {
                 System.exit(0);
             } else if (scelta == JOptionPane.CLOSED_OPTION) {
@@ -251,7 +252,7 @@ public class Game extends JPanel implements KeyListener {
         int[][] array = new int[37][35];
         double randomNumber = 0;
         int[][] l = percorso();
-        int[][] posPercorso = new int[60][2];
+        int[][] posPercorso = new int[70][2];
         int posx = 10;
         int posy = 10;
         int count = 0;
@@ -263,7 +264,7 @@ for (int i = 0; i < l.length; i++) {
             if (l[i][1] == 1) {
                 for (int j = 0; j < l[i][0]; j++) {
                     posPercorso[count][0] = posx;
-                    posPercorso[count + 1][1] = posy;
+                    posPercorso[count][1] = posy;
                     count ++;
                     posx += 10;
                 }
@@ -294,10 +295,10 @@ for (int i = 0; i < l.length; i++) {
                 int controllo2 = ((j + 1) * 10);
 
                 if (controllo1 > 360) {
-                    controllo1 = 366;
+                    controllo1 = 360;
                 }
                 if (controllo2 > 340) {
-                    controllo2 = 343;
+                    controllo2 = 340;
                 }
                 if ((i == 0 && j == 0) || (controllo1 == traguardo.getX() && controllo2 == traguardo.getY())) {
                     randomInt = 0;
@@ -335,71 +336,62 @@ for (int i = 0; i < l.length; i++) {
     }
 
     static public int[][] percorso() {
-        ArrayList<Integer> a = new ArrayList<>();
-        int x = traguardo.getX();
-        int y = traguardo.getY();
+    // Initialize the a ArrayList to store the steps and corresponding axes
+    ArrayList<Integer> a = new ArrayList<>();
 
-        Random randomico1 = new Random();
-        Random randomico2 = new Random();
+    // Calculate the horizontal and vertical distances between the current position and the target position
+    int x = traguardo.getX();
+    int y = traguardo.getY();
+    int disx = ((int) x / 10) - 1;
+    int disy = ((int) y / 10) - 1;
 
-        int disx = ((int) x / 10) - 1;
-        int disy = ((int) y / 10) - 1;
-
-        System.out.println("Valore di x:" + disx + " valore di y:" + disy);
-        while (disx > 0) {
-            int rando = (randomico1.nextInt(disx) + 1);
-            disx = disx - rando;
-            a.add(rando);
-            contax++;
+    // Generate random steps for both the disx and disy distances
+    Random randomico = new Random();
+    
+    System.out.println("Valore di x:" + disx + " valore di y:" + disy);
+    
+    while (disx > 0 || disy > 0) {
+        // Generate a random step for either disx or disy, depending on which distance is larger
+        int rando;
+        int axis;
+        if (disx > disy) {
+            rando = randomico.nextInt(disx) + 1;
+            disx -= rando;
+            axis = 1;  // horizontal axis
+        } else {
+            rando = randomico.nextInt(disy) + 1;
+            disy -= rando;
+            axis = 0;  // vertical axis
         }
-        while (disy > 0) {
-            int rando = (randomico2.nextInt(disy) + 1);
-            disy = disy - rando;
-            a.add(rando);
-            contay++;
-        }
-
-       
-
-        int acaso[][] = new int[a.size()][2];
-
-        for (int i = 0; i < a.size(); i++) {
-            acaso[i][0] = a.get(i);
-
-        }
-
-        for (int i = 0; i < a.size(); i++) {
-            if (contax > i) {
-                acaso[i][1] = 1;
-            } else {
-                acaso[i][1] = 0;
-            }
-
-        }
-
-        Collections.shuffle(a);
-        //non funziona
-        int[] finale = new int[a.size()];
-        for (int i = 0; i < a.size(); i++) {
-            for (int k = 0; k < a.size(); k++) {
-                if (a.get(i).equals(acaso[k][0])) {
-
-                    finale[i] = acaso[k][1];
-                }
-            }
-        }
-
-        for (int i = 0; i < a.size(); i++) {
-            acaso[i][0] = a.get(i);
-
-        }
-        for (int i = 0; i < a.size(); i++) {
-            acaso[i][1] = finale[i];
-
-        }
-
-       
-        return acaso;
+        a.add(rando);
+        a.add(axis);
     }
+
+    // Create the acaso array and populate it with the values from the a ArrayList
+    int acaso[][] = new int[a.size() / 2][2];
+    for (int i = 0; i < a.size(); i += 2) {
+        acaso[i / 2][0] = a.get(i);
+        acaso[i / 2][1] = a.get(i + 1);
+    }
+
+    // Create an array of indices for the acaso array
+    int[] indices = new int[acaso.length];
+    for (int i = 0; i < indices.length; i++) {
+        indices[i] = i;
+    }
+
+    // Shuffle the indices array
+    Collections.shuffle(Arrays.asList(indices));
+
+    // Reorder the values in the acaso array using the shuffled indices
+    int[][] shuffled = new int[acaso.length][2];
+    for (int i = 0; i < indices.length; i++) {
+        shuffled[i][0] = acaso[indices[i]][0];
+        shuffled[i][1] = acaso[indices[i]][1];
+    }
+
+    return shuffled;
+}
+
 
 }
